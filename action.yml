@@ -1,0 +1,25 @@
+name: Setup SSH Key action
+description : Setup ssh key
+inputs:
+  private_key:
+    description: "Private key for connecting to Github"
+    required: true
+
+runs:
+  using: "composite"
+  steps:
+    - name: Setup SSH key
+      shell: bash
+      run: |
+        mkdir -p ~/.ssh/
+        echo "${{ inputs.private_key }}" > ~/.ssh/id_rsa
+        chmod 400 ~/.ssh/id_rsa
+        rm -f ~/.ssh/config
+        echo "Host github.com" >> ~/.ssh/config
+        echo "    HostName github.com" >> ~/.ssh/config
+        echo "    StrictHostKeyChecking no" >> ~/.ssh/config
+        echo "    IdentityFile ~/.ssh/id_rsa" >> ~/.ssh/config     
+        chmod 600 ~/.ssh/config
+        eval $(ssh-agent)
+        cat ~/.ssh/id_rsa
+        ssh-add ~/.ssh/id_rsa
